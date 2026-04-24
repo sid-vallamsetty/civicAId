@@ -197,6 +197,53 @@ input, textarea, select { font-family: var(--font-readable); }
 }
 .rank-badge .stat-value { color: var(--brown-700); }
 
+/* Rank stat — pixel icon + label inline */
+.rank-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.rank-icon {
+  display: inline-block;
+  image-rendering: pixelated;
+  filter: drop-shadow(1px 1px 0 rgba(94,74,54,0.35));
+}
+.rank-text { line-height: 1; }
+
+/* Streak stat — pixel fire with number inside */
+.streak-stat { min-width: 80px; }
+.streak-value {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-top: 2px;
+}
+.streak-fire {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  filter: drop-shadow(1px 1px 0 rgba(94,74,54,0.5));
+}
+.streak-number {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-pixel-display);
+  font-size: 12px;
+  color: var(--brown-900);
+  text-shadow:
+    1px 0 0 #fff,
+    -1px 0 0 #fff,
+    0 1px 0 #fff,
+    0 -1px 0 #fff;
+  line-height: 1;
+  padding-top: 8px;
+}
+
 /* =====================================================================
    LAYOUT
    ===================================================================== */
@@ -280,6 +327,44 @@ input, textarea, select { font-family: var(--font-readable); }
    LEFT PANEL — challenges + composer + feed
    ===================================================================== */
 .left-panel { min-height: 320px; }
+
+/* Challenges title + live refresh timer row */
+.challenges-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.challenge-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--beige-100);
+  color: var(--brown-900);
+  border: 3px solid var(--brown-700);
+  box-shadow: var(--pixel-shadow-sm);
+  font-family: var(--font-pixel-display);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.challenge-timer-icon {
+  display: inline-block;
+  image-rendering: pixelated;
+}
+.challenge-timer-label {
+  color: var(--ink-soft);
+}
+.challenge-timer-value {
+  color: var(--green-700);
+  font-size: 11px;
+  padding: 2px 6px;
+  background: var(--card);
+  border: 2px solid var(--brown-700);
+}
 
 .challenges-scroll {
   flex: 2.25 1 0;
@@ -751,8 +836,13 @@ input, textarea, select { font-family: var(--font-readable); }
   gap: 2px;
   background: var(--green-700);
   padding: 6px;
-  aspect-ratio: 10 / 8;
-  width: 100%;
+  /* Fixed pixel dimensions — grid-template-columns/rows are set inline
+     from PixelGrid.jsx (TILE_PX * cols / rows). width: max-content keeps
+     the board a rigid size so placing a tile never reflows the layout. */
+  width: max-content;
+  height: max-content;
+  max-width: 100%;
+  margin: 0 auto;
   border: 4px solid var(--brown-700);
   box-shadow: var(--pixel-shadow-lg), inset 0 0 0 2px var(--green-900);
   image-rendering: pixelated;
@@ -761,12 +851,10 @@ input, textarea, select { font-family: var(--font-readable); }
 .tile {
   position: relative;
   overflow: hidden;
-  background: var(--green-400);
   image-rendering: pixelated;
-}
-
-.tile-empty {
-  /* checkered grass with subtle pixel noise */
+  /* Every tile — empty or filled — shares the same grass pattern so
+     transparent areas of a placed sprite blend into the lawn instead of
+     revealing a colored plot behind it. */
   background:
     repeating-linear-gradient(45deg,
       var(--green-300) 0 6px,
@@ -774,21 +862,26 @@ input, textarea, select { font-family: var(--font-readable); }
   box-shadow: inset 0 0 0 1px rgba(47,110,61,0.25);
 }
 
+.tile-empty {
+  /* Empty cells keep the base grass (defined on .tile). */
+}
+
 .tile-filled {
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow:
-    inset 0 0 0 2px rgba(0,0,0,0.18),
-    inset 2px 2px 0 0 rgba(255,255,255,0.25);
-  transition: transform 0.1s steps(2, end);
+    inset 0 0 0 1px rgba(47,110,61,0.25),
+    inset 0 0 0 2px rgba(0,0,0,0.12);
+  transition: filter 0.1s steps(2, end);
 }
-.tile-filled:hover { transform: scale(1.04); }
+.tile-filled:hover { filter: brightness(1.08); }
 .tile-sprite {
   width: 100%;
   height: 100%;
   object-fit: contain;
   image-rendering: pixelated;
+  pointer-events: none;
 }
 
 /* =====================================================================
