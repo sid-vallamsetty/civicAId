@@ -1,5 +1,7 @@
 import { buildingById } from '../data/buildings.js'
 
+const TILE_PX = 52
+
 export default function PixelGrid({
   grid,
   tool,
@@ -12,12 +14,16 @@ export default function PixelGrid({
   onTileDragEnd
 }) {
   const cols = grid[0]?.length || 10
+  const rows = grid.length || 8
   const toolType = tool?.type || 'none'
 
   return (
     <div
       className={`pixel-grid tool-${toolType}`}
-      style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+      style={{
+        gridTemplateColumns: `repeat(${cols}, ${TILE_PX}px)`,
+        gridTemplateRows: `repeat(${rows}, ${TILE_PX}px)`
+      }}
       onDragLeave={e => {
         // Clear hover when leaving the grid entirely
         if (e.currentTarget === e.target) onTileDragLeave?.(-1, -1, e)
@@ -51,11 +57,6 @@ export default function PixelGrid({
                   : tool?.type === 'remove'
                   ? `Click to remove ${b?.label || ''}`
                   : `${b?.label || ''} — drag to move`
-              }
-              style={
-                !isEmpty
-                  ? { backgroundColor: b?.color || '#888' }
-                  : undefined
               }
               draggable={!isEmpty}
               onClick={() => onTileClick?.(r, c)}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import TopBar from './components/TopBar.jsx'
 import ChallengeCard from './components/ChallengeCard.jsx'
+import ChallengeTimer from './components/ChallengeTimer.jsx'
 import EvidenceInput from './components/EvidenceInput.jsx'
 import EvidenceFeed from './components/EvidenceFeed.jsx'
 import PixelGrid from './components/PixelGrid.jsx'
@@ -18,7 +19,7 @@ function emptyGrid() {
 }
 
 export default function App() {
-  const [points, setPoints] = useState(0)
+  const [points, setPoints] = useState(10000)
   const [streak, setStreak] = useState(1)
   const [log, setLog] = useState([])
   const [grid, setGrid] = useState(emptyGrid())
@@ -240,7 +241,10 @@ export default function App() {
       <TopBar points={points} streak={streak} rank={rank} />
       <main className="layout">
         <section className="panel left-panel">
-          <h2 className="panel-title">Challenges</h2>
+          <div className="challenges-header">
+            <h2 className="panel-title">Challenges</h2>
+            <ChallengeTimer />
+          </div>
           <div className="challenges-scroll" aria-label="Challenge list">
             <div className="challenges">
               {challenges.map(ch => (
