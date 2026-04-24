@@ -2,7 +2,7 @@ export default function EvidenceFeed({ log }) {
   if (!log.length) {
     return (
       <div className="feed empty">
-        <p className="feed-empty">No submissions yet. Pick a challenge above and tell Claude what you did!</p>
+        <p className="feed-empty">No submissions yet. Pick a challenge in the list and tell Claude what you did!</p>
       </div>
     )
   }
