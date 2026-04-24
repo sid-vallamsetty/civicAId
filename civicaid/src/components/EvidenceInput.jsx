@@ -64,7 +64,7 @@ export default function EvidenceInput({ challenge, onSubmit, disabled }) {
         value={text}
         onChange={e => setText(e.target.value)}
         placeholder="Describe what you did, attach a photo or PDF, or both..."
-        rows={3}
+        rows={2}
         disabled={disabled}
       />
       <div className="evidence-file-row">
