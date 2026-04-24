@@ -20,7 +20,7 @@ export default function EvidenceInput({ challenge, onSubmit, disabled }) {
         value={text}
         onChange={e => setText(e.target.value)}
         placeholder="Describe what you did. Claude will review and award points..."
-        rows={3}
+        rows={2}
         disabled={disabled}
       />
       <button type="submit" className="evidence-submit" disabled={disabled || !text.trim()}>

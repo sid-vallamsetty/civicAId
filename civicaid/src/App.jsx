@@ -117,21 +117,25 @@ export default function App() {
       <main className="layout">
         <section className="panel left-panel">
           <h2 className="panel-title">Challenges</h2>
-          <div className="challenges">
-            {challenges.map(ch => (
-              <ChallengeCard
-                key={ch.id}
-                challenge={ch}
-                active={activeChallenge.id === ch.id}
-                onSelect={() => setActiveChallenge(ch)}
-              />
-            ))}
+          <div className="challenges-scroll" aria-label="Challenge list">
+            <div className="challenges">
+              {challenges.map(ch => (
+                <ChallengeCard
+                  key={ch.id}
+                  challenge={ch}
+                  active={activeChallenge.id === ch.id}
+                  onSelect={() => setActiveChallenge(ch)}
+                />
+              ))}
+            </div>
           </div>
-          <EvidenceInput
-            challenge={activeChallenge}
-            onSubmit={handleSubmitEvidence}
-            disabled={submitting}
-          />
+          <div className="evidence-composer">
+            <EvidenceInput
+              challenge={activeChallenge}
+              onSubmit={handleSubmitEvidence}
+              disabled={submitting}
+            />
+          </div>
           <EvidenceFeed log={log} />
         </section>
         <section className="panel right-panel">
