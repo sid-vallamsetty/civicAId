@@ -513,57 +513,64 @@ input, textarea, select { font-family: var(--font-readable); }
 }
 
 /* =====================================================================
-   EVIDENCE INPUT — pixel window with title bar
+   EVIDENCE INPUT — pixel window with contextual header
    ===================================================================== */
 .evidence-input {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   background: var(--card);
   border: 3px solid var(--brown-700);
   box-shadow: var(--pixel-shadow);
-  padding: 28px 12px 12px;
+  overflow: hidden;
 }
 
-/* Window title bar */
-.evidence-input::before {
-  content: "▸ submit evidence";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
+/* Window title bar shows the active challenge so we don't repeat it inside */
+.evidence-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  padding: 0 10px;
   background:
     repeating-linear-gradient(90deg,
       var(--green-500) 0 6px,
       var(--green-600) 6px 12px);
   color: #fff;
+  border-bottom: 2px solid var(--brown-700);
   font-family: var(--font-pixel-display);
   font-size: 8px;
   letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  border-bottom: 2px solid var(--brown-700);
   text-transform: uppercase;
+  flex-shrink: 0;
+}
+.evidence-header-marker {
+  color: #fff;
+  text-shadow: 1px 1px 0 var(--green-900);
+  flex-shrink: 0;
+}
+.evidence-header-target {
+  color: var(--sun);
+  text-shadow: 1px 1px 0 var(--green-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
 }
 
-.evidence-label {
-  font-size: 16px;
-  line-height: 1.3;
-  color: var(--ink-soft);
-}
-.evidence-label strong {
-  color: var(--green-700);
-  font-family: var(--font-pixel-body);
+.evidence-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
 }
 
 .evidence-textarea {
   width: 100%;
   resize: vertical;
-  min-height: 3rem;
-  max-height: 120px;
+  min-height: 3.25rem;
+  max-height: 140px;
   border: 3px solid var(--brown-700);
   padding: 8px 10px;
   font-size: 16px;
@@ -571,93 +578,92 @@ input, textarea, select { font-family: var(--font-readable); }
   background: #fffdf3;
   color: var(--ink);
   box-shadow: inset 2px 2px 0 0 rgba(94,74,54,0.15);
+  font-family: var(--font-readable);
+}
+.evidence-textarea::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.85;
 }
 .evidence-textarea:focus {
   outline: none;
   border-color: var(--green-700);
-  box-shadow: inset 2px 2px 0 0 rgba(47,110,61,0.2), 0 0 0 2px var(--green-300);
+  box-shadow:
+    inset 2px 2px 0 0 rgba(47,110,61,0.2),
+    0 0 0 2px var(--green-300);
 }
 .evidence-textarea:disabled {
   background: var(--beige-100);
   color: var(--ink-soft);
 }
 
-.evidence-file-row {
+/* Compact attached-file chip */
+.evidence-file-chip {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
-}
-.evidence-file-label { display: inline-block; cursor: pointer; }
-.evidence-file-input {
-  position: absolute;
-  width: 1px; height: 1px;
-  opacity: 0; overflow: hidden;
-}
-.evidence-file-button {
-  display: inline-block;
+  padding: 6px 8px 6px 6px;
   background: var(--beige-100);
-  color: var(--brown-700);
-  border: 3px solid var(--brown-700);
+  border: 2px solid var(--brown-700);
   box-shadow: var(--pixel-shadow-sm);
-  padding: 8px 14px;
-  font-family: var(--font-pixel-display);
-  font-size: 9px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  transition: transform 0.08s steps(2, end), box-shadow 0.08s steps(2, end);
-}
-.evidence-file-label:hover .evidence-file-button {
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 0 var(--brown-700);
-  background: var(--sun);
-}
-.evidence-file-label:active .evidence-file-button {
-  transform: translate(2px, 2px);
-  box-shadow: 0 0 0 0 var(--brown-700);
-}
-
-.evidence-file-preview {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--card);
-  border: 3px solid var(--brown-700);
-  box-shadow: var(--pixel-shadow-sm);
-  padding: 6px 10px;
+  min-width: 0;
 }
 .evidence-thumb {
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   object-fit: cover;
   border: 2px solid var(--brown-700);
   image-rendering: pixelated;
+  flex-shrink: 0;
 }
-.evidence-pdf {
-  font-size: 15px;
-  color: var(--ink);
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--font-readable);
-}
-.evidence-clear {
-  background: var(--beige-100);
+.evidence-pdf-badge {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--sun);
+  color: var(--brown-700);
   border: 2px solid var(--brown-700);
-  padding: 4px 8px;
   font-family: var(--font-pixel-display);
   font-size: 8px;
   letter-spacing: 1px;
-  color: var(--brown-700);
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: background 0.08s steps(2, end);
+  flex-shrink: 0;
 }
-.evidence-clear:hover:not(:disabled) {
-  background: var(--rose-bg);
-  color: #8b3b3b;
+.evidence-file-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--font-readable);
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.evidence-chip-clear {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: 2px solid var(--brown-700);
+  color: var(--brown-700);
+  font-family: var(--font-pixel-display);
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.08s steps(2, end), color 0.08s steps(2, end), border-color 0.08s steps(2, end);
+}
+.evidence-chip-clear:hover:not(:disabled) {
+  background: var(--rose);
+  color: #fff;
   border-color: #8b3b3b;
+}
+.evidence-chip-clear:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .evidence-file-error {
@@ -669,13 +675,72 @@ input, textarea, select { font-family: var(--font-readable); }
   font-family: var(--font-readable);
 }
 
+/* Bottom toolbar: attach on the left, submit on the right */
+.evidence-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.evidence-attach {
+  display: inline-block;
+  cursor: pointer;
+  user-select: none;
+}
+.evidence-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.evidence-attach-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--beige-100);
+  color: var(--brown-700);
+  border: 2px solid var(--brown-700);
+  box-shadow: var(--pixel-shadow-sm);
+  padding: 6px 10px;
+  font-family: var(--font-pixel-display);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: transform 0.08s steps(2, end), box-shadow 0.08s steps(2, end), background 0.08s steps(2, end);
+}
+.evidence-attach-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  background: var(--sun);
+  color: var(--brown-700);
+  border: 2px solid var(--brown-700);
+  font-family: var(--font-pixel-display);
+  font-size: 9px;
+  line-height: 1;
+}
+.evidence-attach:hover .evidence-attach-btn {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 0 var(--brown-700);
+  background: var(--sun);
+}
+.evidence-attach:active .evidence-attach-btn {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 0 var(--brown-700);
+}
+
 .evidence-submit {
-  align-self: flex-end;
   background: var(--green-500);
   color: #fff;
   border: 3px solid var(--green-700);
   box-shadow: var(--pixel-shadow);
-  padding: 10px 20px;
+  padding: 9px 18px;
   font-family: var(--font-pixel-display);
   font-size: 10px;
   letter-spacing: 1px;
@@ -701,7 +766,7 @@ input, textarea, select { font-family: var(--font-readable); }
 }
 
 /* =====================================================================
-   FEED — Claude's responses, like postcards from neighbors
+   FEED — Anthro's responses, chat bubbles from your friendly mascot
    ===================================================================== */
 .feed {
   flex: 1 1 0;
@@ -710,13 +775,25 @@ input, textarea, select { font-family: var(--font-readable); }
   flex-direction: column;
   gap: 10px;
 }
+
 .feed.empty {
   color: var(--ink-soft);
   font-size: 16px;
-  padding: 12px;
+  padding: 14px;
   background: var(--beige-100);
   border: 3px dashed var(--border-soft);
-  text-align: center;
+  text-align: left;
+}
+
+/* Empty-state intro: Anthro waving hello */
+.anthro-empty {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background:
+    repeating-linear-gradient(0deg,
+      var(--beige-100) 0 3px,
+      var(--beige-50) 3px 6px) !important;
 }
 .feed-empty { margin: 0; }
 
@@ -727,6 +804,12 @@ input, textarea, select { font-family: var(--font-readable); }
   letter-spacing: 1.4px;
   color: var(--brown-700);
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.feed-title .anthro-avatar {
+  flex-shrink: 0;
 }
 
 .feed-list {
@@ -735,50 +818,153 @@ input, textarea, select { font-family: var(--font-readable); }
   padding: 0 4px 0 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   flex: 1 1 0;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
+/* ---- Anthro avatar (mascot icon) ---- */
+.anthro-avatar {
+  position: relative;
+  flex-shrink: 0;
+  background: var(--beige-100);
+  border: 3px solid var(--brown-700);
+  box-shadow: var(--pixel-shadow-sm);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+.anthro-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  user-select: none;
+  /* Lift sprite slightly so feet sit on bottom edge */
+  transform: translateY(2px);
+}
+.anthro-avatar.status-approved { background: var(--green-100); border-color: var(--green-700); }
+.anthro-avatar.status-rejected { background: var(--rose-bg);   border-color: #8b3b3b; }
+.anthro-avatar.status-pending  { background: var(--sun);       border-color: var(--brown-700); }
+.anthro-avatar.status-error    { background: var(--beige-200); border-color: var(--brown-700); }
+
+/* small status dot in the corner of the avatar */
+.anthro-status-dot {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--brown-700);
+  background: var(--green-500);
+  box-shadow: 1px 1px 0 0 var(--brown-700);
+}
+.anthro-status-dot.status-approved { background: var(--green-500); }
+.anthro-status-dot.status-rejected { background: var(--rose); }
+.anthro-status-dot.status-pending  { background: var(--sun); animation: anthroPulse 1.2s steps(2, end) infinite; }
+.anthro-status-dot.status-error    { background: var(--brown-500); }
+
+@keyframes anthroPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.35); }
+}
+
+/* ---- Feed item: avatar + speech bubble ---- */
 .feed-item {
   position: relative;
-  border: 3px solid var(--brown-700);
-  background: var(--card);
-  padding: 10px 12px 10px 16px;
-  box-shadow: var(--pixel-shadow-sm);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
 }
-.feed-item::before {
-  /* status stripe down the left edge */
+
+/* Speech bubble — pixel callout from Anthro */
+.anthro-bubble {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  background: var(--card);
+  border: 3px solid var(--brown-700);
+  box-shadow: var(--pixel-shadow-sm);
+  padding: 10px 12px;
+}
+/* Chunky pixel "tail" pointing back to the avatar */
+.anthro-bubble::before {
   content: "";
   position: absolute;
-  top: -3px;
-  left: -3px;
-  bottom: -3px;
-  width: 8px;
-  background: var(--green-500);
-  border: 3px solid var(--brown-700);
-  border-right: none;
+  top: 16px;
+  left: -10px;
+  width: 10px;
+  height: 10px;
+  background: var(--card);
+  border-left: 3px solid var(--brown-700);
+  border-bottom: 3px solid var(--brown-700);
 }
-.feed-item.status-pending::before  { background: var(--sun); }
-.feed-item.status-approved::before { background: var(--green-500); }
-.feed-item.status-approved         { background: var(--green-50); }
-.feed-item.status-rejected::before { background: var(--rose); }
-.feed-item.status-rejected         { background: var(--rose-bg); }
-.feed-item.status-error::before    { background: var(--brown-500); }
+.anthro-bubble::after {
+  /* small notch above the tail to keep silhouette pixel-clean */
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: -3px;
+  width: 3px;
+  height: 3px;
+  background: var(--card);
+}
+
+.feed-item.status-approved .anthro-bubble { background: var(--green-50); border-color: var(--green-700); }
+.feed-item.status-approved .anthro-bubble::before { background: var(--green-50); border-color: var(--green-700); }
+.feed-item.status-approved .anthro-bubble::after  { background: var(--green-50); }
+
+.feed-item.status-rejected .anthro-bubble { background: var(--rose-bg); border-color: #8b3b3b; }
+.feed-item.status-rejected .anthro-bubble::before { background: var(--rose-bg); border-color: #8b3b3b; }
+.feed-item.status-rejected .anthro-bubble::after  { background: var(--rose-bg); }
+
+.feed-item.status-pending .anthro-bubble { background: var(--beige-50); border-color: var(--brown-700); }
+.feed-item.status-pending .anthro-bubble::before { background: var(--beige-50); border-color: var(--brown-700); }
+.feed-item.status-pending .anthro-bubble::after  { background: var(--beige-50); }
+
+/* Same tail trick for the empty-state intro bubble */
+.anthro-bubble-intro::before { background: var(--card); }
+.anthro-bubble-intro::after  { background: var(--card); }
 
 .feed-item-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 6px;
+  align-items: flex-start;
+  margin-bottom: 4px;
   gap: 8px;
 }
-.feed-challenge {
+.feed-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.anthro-name {
+  margin: 0;
   font-family: var(--font-pixel-display);
   font-size: 10px;
-  color: var(--brown-900);
+  color: var(--green-700);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.feed-item.status-rejected .anthro-name { color: #8b3b3b; }
+.feed-item.status-error .anthro-name    { color: var(--brown-700); }
+
+.feed-challenge {
+  font-family: var(--font-pixel-body);
+  font-size: 13px;
+  color: var(--ink-soft);
+  text-transform: none;
+  letter-spacing: 0.5px;
 }
 .feed-status {
   font-family: var(--font-pixel-display);
@@ -787,17 +973,29 @@ input, textarea, select { font-family: var(--font-readable); }
   padding: 4px 8px;
   border: 2px solid var(--brown-700);
   text-transform: uppercase;
+  flex-shrink: 0;
+  align-self: flex-start;
 }
 .feed-status.status-approved { background: var(--green-500); color: #fff; }
 .feed-status.status-rejected { background: var(--rose);      color: #fff; }
 .feed-status.status-pending  { background: var(--sun);       color: var(--brown-700); }
 .feed-status.status-error    { background: var(--brown-500); color: #fff; }
 
+.anthro-greeting {
+  margin: 4px 0 6px;
+  font-size: 16px;
+  color: var(--brown-900);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
 .feed-evidence {
   margin: 4px 0;
   font-size: 15px;
   color: var(--ink-soft);
   font-style: italic;
+  border-left: 3px solid var(--border-soft);
+  padding-left: 8px;
 }
 .feed-message {
   margin: 4px 0 0;
