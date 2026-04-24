@@ -21,7 +21,22 @@ export default function EvidenceFeed({ log }) {
                 {entry.status === 'error' && 'error'}
               </span>
             </div>
-            <p className="feed-evidence">"{entry.evidence}"</p>
+            {entry.evidence && (
+              <p className="feed-evidence">"{entry.evidence}"</p>
+            )}
+            {entry.file && (
+              <div className="feed-file">
+                {entry.file.previewUrl ? (
+                  <img
+                    src={entry.file.previewUrl}
+                    alt={entry.file.name}
+                    className="feed-thumb"
+                  />
+                ) : (
+                  <span className="feed-pdf">📄 {entry.file.name}</span>
+                )}
+              </div>
+            )}
             <p className="feed-message">{entry.message}</p>
           </li>
         ))}
