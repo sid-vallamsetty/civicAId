@@ -272,6 +272,105 @@ body { min-height: 100vh; }
 .evidence-submit:hover:not(:disabled) { background: var(--green-700); }
 .evidence-submit:disabled { background: #b8c9b3; cursor: not-allowed; }
 
+.evidence-file-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.evidence-file-label {
+  display: inline-block;
+  cursor: pointer;
+}
+.evidence-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+.evidence-file-button {
+  display: inline-block;
+  background: var(--amber-100);
+  color: var(--amber-700);
+  border: 1px dashed #e7c98b;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.1s ease;
+}
+.evidence-file-label:hover .evidence-file-button { background: #ffe6b3; }
+
+.evidence-file-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+.evidence-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.evidence-pdf {
+  font-size: 13px;
+  color: var(--ink);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.evidence-clear {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.evidence-clear:hover:not(:disabled) {
+  background: #fdf3f3;
+  color: #a8324b;
+  border-color: #f0c0c0;
+}
+.evidence-file-error {
+  font-size: 12px;
+  color: #a8324b;
+  background: #fdf3f3;
+  border: 1px solid #f0c0c0;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.feed-file {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+.feed-thumb {
+  max-width: 120px;
+  max-height: 120px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  object-fit: cover;
+}
+.feed-pdf {
+  font-size: 12px;
+  background: var(--amber-100);
+  color: var(--amber-700);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+
 /* ---------- Feed ---------- */
 .feed {
   flex: 1 1 0;

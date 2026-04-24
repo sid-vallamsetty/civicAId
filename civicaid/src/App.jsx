@@ -26,13 +26,20 @@ export default function App() {
 
   const rank = rankFor(points)
 
-  async function handleSubmitEvidence(text) {
-    if (!text.trim() || submitting) return
+  async function handleSubmitEvidence(text, file, previewUrl) {
+    const trimmed = (text || '').trim()
+    if ((!trimmed && !file) || submitting) return
     setSubmitting(true)
+    const fileMeta = file
+      ? { name: file.name, type: file.type, previewUrl: previewUrl || null }
+      : null
+    const evidenceLabel = trimmed
+      || (file ? `[${file.type === 'application/pdf' ? 'PDF' : 'Image'}: ${file.name}]` : '')
     const entry = {
       id: Date.now(),
       challengeTitle: activeChallenge.title,
-      evidence: text,
+      evidence: evidenceLabel,
+      file: fileMeta,
       status: 'pending',
       message: 'Claude is reviewing your submission...',
       pointsAwarded: 0
@@ -40,15 +47,15 @@ export default function App() {
     setLog(prev => [entry, ...prev])
 
     try {
-      const result = await verifyEvidence(activeChallenge, text)
-      const awarded = Math.max(0, Math.min(activeChallenge.points, Number(result.pointsAwarded) || 0))
+      const result = await verifyEvidence(activeChallenge, trimmed, file)
+      const awarded = result.approved ? activeChallenge.points : 0
       setLog(prev => prev.map(e => e.id === entry.id ? {
         ...e,
         status: result.approved ? 'approved' : 'rejected',
-        message: result.message,
-        pointsAwarded: result.approved ? awarded : 0
+        message: result.reason || (result.approved ? 'Approved.' : 'Not approved.'),
+        pointsAwarded: awarded
       } : e))
-      if (result.approved && awarded > 0) {
+      if (result.approved) {
         setPoints(p => p + awarded)
         setStreak(s => s + 1)
       }
