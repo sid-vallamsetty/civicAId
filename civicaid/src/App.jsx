@@ -1,15 +1,17 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import TopBar from './components/TopBar.jsx'
 import ChallengeCard from './components/ChallengeCard.jsx'
 import EvidenceInput from './components/EvidenceInput.jsx'
 import EvidenceFeed from './components/EvidenceFeed.jsx'
 import PixelGrid from './components/PixelGrid.jsx'
+import BuildMenu from './components/BuildMenu.jsx'
 import { challenges, rankFor } from './data/challenges.js'
 import { buildings, buildingById } from './data/buildings.js'
 import { verifyEvidence } from './services/claude.js'
 
 const ROWS = 8
 const COLS = 10
+const REMOVE_REFUND_RATIO = 0.5
 
 function emptyGrid() {
   return Array(ROWS).fill(null).map(() => Array(COLS).fill('empty'))
@@ -22,9 +24,33 @@ export default function App() {
   const [grid, setGrid] = useState(emptyGrid())
   const [activeChallenge, setActiveChallenge] = useState(challenges[0])
   const [submitting, setSubmitting] = useState(false)
-  const [selectedBuilding, setSelectedBuilding] = useState(buildings[0].id)
+
+  // Build / interaction state
+  const [tool, setTool] = useState(null) // null | { type:'place', buildingId } | { type:'remove' }
+  const [dragHover, setDragHover] = useState(null) // [r,c] or null
+  const dragRef = useRef(null) // { kind:'building', id } | { kind:'tile', from:[r,c] }
 
   const rank = rankFor(points)
+
+  // ESC clears any active tool
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape') clearTool()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  function logBuildEvent(evidence, status, message, pointsAwarded = 0) {
+    setLog(prev => [{
+      id: Date.now() + Math.random(),
+      challengeTitle: 'Build action',
+      evidence,
+      status,
+      message,
+      pointsAwarded
+    }, ...prev])
+  }
 
   async function handleSubmitEvidence(text, file, previewUrl) {
     const trimmed = (text || '').trim()
@@ -70,52 +96,143 @@ export default function App() {
     }
   }
 
-  function handlePlaceBuilding() {
-    const b = buildingById(selectedBuilding)
-    if (!b) return
+  // ---- Tool selection ------------------------------------------------------
+  function selectBuildingTool(id) {
+    setTool({ type: 'place', buildingId: id })
+  }
+  function toggleRemoveTool() {
+    setTool(prev => (prev?.type === 'remove' ? null : { type: 'remove' }))
+  }
+  function clearTool() {
+    setTool(null)
+  }
+
+  // ---- Grid mutations ------------------------------------------------------
+  function placeBuildingAt(buildingId, r, c) {
+    const b = buildingById(buildingId)
+    if (!b) return false
+    if (grid[r][c] !== 'empty') return false
     if (points < b.cost) {
-      setLog(prev => [{
-        id: Date.now(),
-        challengeTitle: 'Build action',
-        evidence: `Tried to place ${b.label}`,
-        status: 'rejected',
-        message: `Need ${b.cost - points} more points to place a ${b.label}.`,
-        pointsAwarded: 0
-      }, ...prev])
-      return
+      logBuildEvent(
+        `Tried to place ${b.label}`,
+        'rejected',
+        `Need ${b.cost - points} more points to place a ${b.label}.`,
+        0
+      )
+      return false
     }
-    let placed = false
     const next = grid.map(row => row.slice())
-    outer: for (let r = next.length - 1; r >= 0; r--) {
-      for (let c = 0; c < next[r].length; c++) {
-        if (next[r][c] === 'empty') {
-          next[r][c] = b.id
-          placed = true
-          break outer
-        }
-      }
-    }
-    if (!placed) {
-      setLog(prev => [{
-        id: Date.now(),
-        challengeTitle: 'Build action',
-        evidence: `Tried to place ${b.label}`,
-        status: 'rejected',
-        message: 'Your community grid is full! Amazing work.',
-        pointsAwarded: 0
-      }, ...prev])
-      return
-    }
+    next[r][c] = b.id
     setGrid(next)
     setPoints(p => p - b.cost)
-    setLog(prev => [{
-      id: Date.now(),
-      challengeTitle: 'Build action',
-      evidence: `Placed a ${b.label}`,
-      status: 'approved',
-      message: `Your community grew! ${b.label} added to the grid.`,
-      pointsAwarded: -b.cost
-    }, ...prev])
+    logBuildEvent(
+      `Placed a ${b.label}`,
+      'approved',
+      `${b.label} added to plot (${r + 1}, ${c + 1}).`,
+      -b.cost
+    )
+    return true
+  }
+
+  function removeBuildingAt(r, c) {
+    const cell = grid[r][c]
+    if (cell === 'empty') return false
+    const b = buildingById(cell)
+    const refund = Math.floor((b?.cost || 0) * REMOVE_REFUND_RATIO)
+    const next = grid.map(row => row.slice())
+    next[r][c] = 'empty'
+    setGrid(next)
+    if (refund > 0) setPoints(p => p + refund)
+    logBuildEvent(
+      `Removed ${b?.label || cell}`,
+      'approved',
+      refund > 0
+        ? `Refunded ${refund} pts (50% of ${b?.cost || 0}).`
+        : `Removed ${b?.label || cell}.`,
+      refund
+    )
+    return true
+  }
+
+  function moveBuilding(fromR, fromC, toR, toC) {
+    if (fromR === toR && fromC === toC) return false
+    if (grid[toR][toC] !== 'empty') return false
+    const cell = grid[fromR][fromC]
+    if (cell === 'empty') return false
+    const next = grid.map(row => row.slice())
+    next[toR][toC] = cell
+    next[fromR][fromC] = 'empty'
+    setGrid(next)
+    const b = buildingById(cell)
+    logBuildEvent(
+      `Moved ${b?.label || cell}`,
+      'approved',
+      `Relocated to plot (${toR + 1}, ${toC + 1}).`,
+      0
+    )
+    return true
+  }
+
+  // ---- Tile click ----------------------------------------------------------
+  function handleTileClick(r, c) {
+    if (!tool) return
+    if (tool.type === 'place') {
+      placeBuildingAt(tool.buildingId, r, c)
+    } else if (tool.type === 'remove') {
+      removeBuildingAt(r, c)
+    }
+  }
+
+  // ---- Drag and drop -------------------------------------------------------
+  function handleBuildingDragStart(id, e) {
+    dragRef.current = { kind: 'building', id }
+    e.dataTransfer.effectAllowed = 'copy'
+    try { e.dataTransfer.setData('text/plain', `building:${id}`) } catch {}
+  }
+
+  function handleTileDragStart(r, c, e) {
+    if (grid[r][c] === 'empty') return
+    dragRef.current = { kind: 'tile', from: [r, c] }
+    e.dataTransfer.effectAllowed = 'move'
+    try { e.dataTransfer.setData('text/plain', `tile:${r},${c}`) } catch {}
+  }
+
+  function handleTileDragOver(r, c, e) {
+    if (!dragRef.current) return
+    // Only allow drop on empty tiles
+    if (r >= 0 && c >= 0 && grid[r][c] !== 'empty') return
+    e.preventDefault()
+    e.dataTransfer.dropEffect =
+      dragRef.current.kind === 'tile' ? 'move' : 'copy'
+    setDragHover([r, c])
+  }
+
+  function handleTileDragLeave(r, c) {
+    setDragHover(prev => {
+      if (!prev) return prev
+      if (r === -1 && c === -1) return null
+      return prev[0] === r && prev[1] === c ? null : prev
+    })
+  }
+
+  function handleTileDrop(r, c, e) {
+    e.preventDefault()
+    const data = dragRef.current
+    setDragHover(null)
+    dragRef.current = null
+    if (!data) return
+    if (grid[r][c] !== 'empty') return
+    if (data.kind === 'building') {
+      placeBuildingAt(data.id, r, c)
+    } else if (data.kind === 'tile') {
+      const [fr, fc] = data.from
+      moveBuilding(fr, fc, r, c)
+    }
+  }
+
+  function handleDragEnd() {
+    dragRef.current = null
+    setDragHover(null)
   }
 
   return (
@@ -147,25 +264,27 @@ export default function App() {
         </section>
         <section className="panel right-panel">
           <h2 className="panel-title">Your Community</h2>
-          <PixelGrid grid={grid} />
-          <div className="redeem">
-            <label htmlFor="building-select" className="redeem-label">Redeem points:</label>
-            <select
-              id="building-select"
-              className="redeem-select"
-              value={selectedBuilding}
-              onChange={e => setSelectedBuilding(e.target.value)}
-            >
-              {buildings.map(b => (
-                <option key={b.id} value={b.id}>
-                  {b.label} — {b.cost} pts
-                </option>
-              ))}
-            </select>
-            <button className="redeem-btn" onClick={handlePlaceBuilding}>
-              Place
-            </button>
-          </div>
+          <PixelGrid
+            grid={grid}
+            tool={tool}
+            dragHover={dragHover}
+            onTileClick={handleTileClick}
+            onTileDragStart={handleTileDragStart}
+            onTileDragOver={handleTileDragOver}
+            onTileDragLeave={handleTileDragLeave}
+            onTileDrop={handleTileDrop}
+            onTileDragEnd={handleDragEnd}
+          />
+          <BuildMenu
+            buildings={buildings}
+            points={points}
+            tool={tool}
+            onSelectBuilding={selectBuildingTool}
+            onToggleRemove={toggleRemoveTool}
+            onCancel={clearTool}
+            onBuildingDragStart={handleBuildingDragStart}
+            onDragEnd={handleDragEnd}
+          />
         </section>
       </main>
     </div>
