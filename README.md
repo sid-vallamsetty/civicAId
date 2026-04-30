@@ -175,10 +175,6 @@ VITE_GEMINI_API_KEY=your_gemini_api_key_here
 
 This is a hackathon project created to demonstrate innovative ways to gamify civic participation.
 
-## 📄 License
-
-MIT License
-
 ---
 
 *Built with ❤️ to increase civic engagement through gamification*
