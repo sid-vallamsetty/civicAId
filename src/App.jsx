@@ -8,7 +8,7 @@ import PixelGrid from './components/PixelGrid.jsx'
 import BuildMenu from './components/BuildMenu.jsx'
 import { challenges, rankFor } from './data/challenges.js'
 import { buildings, buildingById } from './data/buildings.js'
-import { verifyEvidence } from './services/claude.js'
+import { verifyEvidence } from './services/gemini.js'
 
 const ROWS = 8
 const COLS = 10
