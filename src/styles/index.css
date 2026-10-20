@@ -50,9 +50,9 @@
   --pixel-shadow-inset:  inset 0 0 0 2px rgba(255,255,255,0.35);
 
   /* Fonts */
-  --font-pixel-display: "Press Start 2P", "VT323", monospace;
-  --font-pixel-body:    "Silkscreen", "VT323", "Press Start 2P", monospace;
-  --font-readable:      "VT323", "Silkscreen", monospace;
+  --font-pixel-display: ui-monospace, "Cascadia Mono", monospace;
+  --font-pixel-body:    ui-monospace, "Cascadia Mono", monospace;
+  --font-readable:      ui-monospace, "Cascadia Mono", monospace;
 }
 
 * { box-sizing: border-box; }
@@ -1413,3 +1413,14 @@ input, textarea, select { font-family: var(--font-readable); }
     animation: none !important;
   }
 }
+
+.evidence-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+.evidence-consent input { margin-top: 3px; flex: 0 0 auto; }
+.evidence-consent a { color: var(--green-700); }

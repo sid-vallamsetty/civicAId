@@ -9,7 +9,7 @@ civicAId increases civic engagement by turning meaningful community contribution
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v14 or higher)
+- Node.js 22 or higher
 - npm or yarn
 
 ### Installation
@@ -157,10 +157,9 @@ civicaid/
 
 ## 🔧 Environment Variables
 
-Create a `.env` file in the project root with:
-```
-VITE_GEMINI_API_KEY=your_gemini_api_key_here
-```
+Provider credentials are server-only and must come from the deployment secret store.
+See [SECURITY.md](SECURITY.md) and `.env.example` for the API, authentication, privacy,
+and review-queue requirements. Never put a provider credential in a `VITE_` variable.
 
 ## 🎮 How to Play
 

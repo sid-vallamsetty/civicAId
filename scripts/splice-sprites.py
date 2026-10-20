@@ -8,22 +8,17 @@ region of each card (excluding the text) and flood-fill the beige card
 background with transparency from all four corners.
 
 Run:
-    python scripts/splice-sprites.py
+    python scripts/splice-sprites.py path/to/source.png
 
 Outputs to civicaid/public/sprites/*.png
 """
 
+import argparse
 from pathlib import Path
 from PIL import Image, ImageDraw
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SRC = Path(
-    r"C:\Users\wg\.cursor\projects\c-Users-wg-OneDrive-Documents-GitHub-civicAId"
-    r"\assets\c__Users_wg_AppData_Roaming_Cursor_User_workspaceStorage"
-    r"_260a6641bd717aa46628eaf19612a7c4_images_image-5cacc294-ff27-4586-825e"
-    r"-5fba5efd8054.png"
-)
-OUT_DIR = REPO_ROOT / "civicaid" / "public" / "sprites"
+OUT_DIR = REPO_ROOT / "public" / "sprites"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Grid of cards on the sheet
@@ -62,7 +57,13 @@ def strip_background(img: Image.Image, thresh: int) -> Image.Image:
 
 
 def main() -> None:
-    sheet = Image.open(SRC).convert("RGBA")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("source", type=Path, help="source sprite sheet")
+    args = parser.parse_args()
+    source = args.source.resolve(strict=True)
+    if not source.is_file():
+        parser.error("source must be a file")
+    sheet = Image.open(source).convert("RGBA")
     W, H = sheet.size
     cell_w = W / COLS
     cell_h = H / ROWS

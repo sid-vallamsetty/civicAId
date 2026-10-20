@@ -6,6 +6,7 @@ export default function EvidenceInput({ challenge, onSubmit, disabled }) {
   const [file, setFile] = useState(null)
   const [previewUrl, setPreviewUrl] = useState(null)
   const [fileError, setFileError] = useState(null)
+  const [consented, setConsented] = useState(false)
   const fileInputRef = useRef(null)
 
   async function handleFileChange(e) {
@@ -45,14 +46,14 @@ export default function EvidenceInput({ challenge, onSubmit, disabled }) {
 
   function handleSubmit(e) {
     e.preventDefault()
-    if (disabled) return
+    if (disabled || !consented) return
     if (!text.trim() && !file) return
     onSubmit(text, file, previewUrl)
     setText('')
     clearFile()
   }
 
-  const canSubmit = !disabled && (text.trim().length > 0 || !!file)
+  const canSubmit = !disabled && consented && (text.trim().length > 0 || !!file)
 
   return (
     <form className="evidence-input" onSubmit={handleSubmit}>
@@ -103,7 +104,7 @@ export default function EvidenceInput({ challenge, onSubmit, disabled }) {
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*,application/pdf"
+              accept="image/jpeg,image/png,image/webp,application/pdf"
               onChange={handleFileChange}
               disabled={disabled}
               className="evidence-file-input"
@@ -122,6 +123,21 @@ export default function EvidenceInput({ challenge, onSubmit, disabled }) {
             {disabled ? 'Reviewing...' : 'Submit Evidence'}
           </button>
         </div>
+
+        <label className="evidence-consent">
+          <input
+            type="checkbox"
+            checked={consented}
+            onChange={event => setConsented(event.target.checked)}
+            disabled={disabled}
+          />
+          <span>
+            I consent to sending this evidence to Google Gemini solely to assess this challenge.
+            Files are processed transiently, are not stored by civicAId, and the result still requires
+            human review. Remove faces, addresses, signatures, and other unnecessary personal data.
+            {' '}<a href="/privacy.html" target="_blank" rel="noreferrer">Privacy details</a>.
+          </span>
+        </label>
       </div>
     </form>
   )

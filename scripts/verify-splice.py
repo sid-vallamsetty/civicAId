@@ -1,17 +1,12 @@
 """Verify that each saved sprite PNG's content matches the same region
 of the source sheet by comparing identical non-background pixels."""
 
+import argparse
 from pathlib import Path
 from PIL import Image
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-SRC = Path(
-    r"C:\Users\wg\.cursor\projects\c-Users-wg-OneDrive-Documents-GitHub-civicAId"
-    r"\assets\c__Users_wg_AppData_Roaming_Cursor_User_workspaceStorage"
-    r"_260a6641bd717aa46628eaf19612a7c4_images_image-5cacc294-ff27-4586-825e"
-    r"-5fba5efd8054.png"
-)
-OUT_DIR = REPO_ROOT / "civicaid" / "public" / "sprites"
+OUT_DIR = REPO_ROOT / "public" / "sprites"
 
 COLS, ROWS = 3, 2
 PAD_L, PAD_T = 20, 82
@@ -25,7 +20,13 @@ LAYOUT = [
     ("flowers",     2, 1),
 ]
 
-sheet = Image.open(SRC).convert("RGB")
+parser = argparse.ArgumentParser()
+parser.add_argument("source", type=Path, help="source sprite sheet")
+args = parser.parse_args()
+source = args.source.resolve(strict=True)
+if not source.is_file():
+    parser.error("source must be a file")
+sheet = Image.open(source).convert("RGB")
 W, H = sheet.size
 cell_w = W / COLS
 cell_h = H / ROWS

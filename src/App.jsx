@@ -19,8 +19,8 @@ function emptyGrid() {
 }
 
 export default function App() {
-  const [points, setPoints] = useState(10000)
-  const [streak, setStreak] = useState(1)
+  const [points, setPoints] = useState(0)
+  const [streak, setStreak] = useState(0)
   const [log, setLog] = useState([])
   const [grid, setGrid] = useState(emptyGrid())
   const [activeChallenge, setActiveChallenge] = useState(challenges[0])
@@ -32,6 +32,20 @@ export default function App() {
   const dragRef = useRef(null) // { kind:'building', id } | { kind:'tile', from:[r,c] }
 
   const rank = rankFor(points)
+
+  useEffect(() => {
+    let active = true
+    fetch('/api/me', { credentials: 'same-origin' })
+      .then(response => response.ok ? response.json() : null)
+      .then(account => {
+        if (active && account) {
+          setPoints(Number(account.points) || 0)
+          setStreak(Number(account.streak) || 0)
+        }
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
 
   // ESC clears any active tool
   useEffect(() => {
@@ -68,29 +82,25 @@ export default function App() {
       evidence: evidenceLabel,
       file: fileMeta,
       status: 'pending',
-      message: 'Claude is reviewing your submission...',
+      message: 'Submitting evidence for review...',
       pointsAwarded: 0
     }
     setLog(prev => [entry, ...prev])
 
     try {
       const result = await verifyEvidence(activeChallenge, trimmed, file)
-      const awarded = result.approved ? activeChallenge.points : 0
       setLog(prev => prev.map(e => e.id === entry.id ? {
         ...e,
-        status: result.approved ? 'approved' : 'rejected',
-        message: result.reason || (result.approved ? 'Approved.' : 'Not approved.'),
-        pointsAwarded: awarded
+        status: result.status === 'pending_review' ? 'pending' : result.status,
+        message: result.message || 'Evidence received.',
+        pointsAwarded: result.pointsAwarded || 0
       } : e))
-      if (result.approved) {
-        setPoints(p => p + awarded)
-        setStreak(s => s + 1)
-      }
+      if (Number.isFinite(result.totalPoints)) setPoints(result.totalPoints)
     } catch (err) {
       setLog(prev => prev.map(e => e.id === entry.id ? {
         ...e,
         status: 'error',
-        message: err.message
+        message: `${err.message}${err.correlationId ? ` Reference: ${err.correlationId}` : ''}`
       } : e))
     } finally {
       setSubmitting(false)
